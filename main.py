@@ -9,11 +9,14 @@ import math as m
 from pysense import Pysense
 from SI7006A20 import SI7006A20 
 from MPL3115A2 import MPL3115A2, ALTITUDE, PRESSURE
-from LIS2HH12 import *
+from LIS2HH12 import LIS2HH12
+from LTR329ALS01 import LTR329ALS01
 
 py = Pysense()
 si = SI7006A20(py)
-li = LIS2HH12()
+li = LIS2HH12(py)
+lt = LTR329ALS01(py)
+
 mpPress = MPL3115A2(py,mode=PRESSURE)
 
 # Disable heartbeat LED
@@ -78,30 +81,30 @@ while True:
     acc_z = bytearray(struct.pack('f',li.acceleration()[2]))
     send_data += acc_x + acc_y + acc_z
 
-    # print('\n\n** Digital Ambient Light Sensor (LTR-329ALS-01)')
-    # print('Light', lt.light())
-    # red = bytearray(struct.pack('H',lt.light()[0]))
-    # blue = bytearray(struct.pack('H',lt.light()[1]))
-    # send_data += red + blue
+    print('\n\n** Digital Ambient Light Sensor (LTR-329ALS-01)')
+    print('Light', lt.light())
+    red = bytearray(struct.pack('H',lt.light()[0]))
+    blue = bytearray(struct.pack('H',lt.light()[1]))
+    send_data += red + blue
 
 
     print('\n\n** Humidity and Temperature Sensor (SI7006A20)')
-    # print('Humidity', si.humidity())
+    print('Humidity', si.humidity())
     print('Temperature', si.temperature())
     temperature = bytearray(struct.pack('f',si.temperature()))
     send_data += temperature
 
-    # mpPress = MPL3115A2(py,mode=PRESSURE)
-    # print('\n\n** Barometric Pressure Sensor with Altimeter (MPL3115A2)')
-    # print('Pressure (hPa)', mpPress.pressure()/100)
+    mpPress = MPL3115A2(py,mode=PRESSURE)
+    print('\n\n** Barometric Pressure Sensor with Altimeter (MPL3115A2)')
+    print('Pressure (hPa)', mpPress.pressure()/100)
 
-    # mpAlt = MPL3115A2(py,mode=ALTITUDE)
-    # print('Altitude', mpAlt.altitude())
-    # print('Temperature', mpAlt.temperature())
+    mpAlt = MPL3115A2(py,mode=ALTITUDE)
+    print('Altitude', mpAlt.altitude())
+    print('Temperature', mpAlt.temperature())
 
     print('Sending data (uplink)...')
     s.send(send_data)
     s.setblocking(False)
     print('Data Sent: ', bytes(send_data))
     pycom.rgbled(0x140000)
-    time.sleep(10)
+    time.sleep(1)
