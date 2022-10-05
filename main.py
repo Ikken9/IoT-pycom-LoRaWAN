@@ -2,7 +2,6 @@ from network import LoRa
 import socket
 import time
 import binascii
-import binascii
 import pycom
 import struct
 import math as m
@@ -10,9 +9,11 @@ import math as m
 from pysense import Pysense
 from SI7006A20 import SI7006A20 
 from MPL3115A2 import MPL3115A2, ALTITUDE, PRESSURE
+from LIS2HH12 import *
 
 py = Pysense()
 si = SI7006A20(py)
+li = LIS2HH12()
 mpPress = MPL3115A2(py,mode=PRESSURE)
 
 # Disable heartbeat LED
