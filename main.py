@@ -7,17 +7,21 @@ import struct
 import math as m
 
 from pysense import Pysense
+from pytrack import Pytrack
 from SI7006A20 import SI7006A20 
 from MPL3115A2 import MPL3115A2, ALTITUDE, PRESSURE
 from LIS2HH12 import LIS2HH12
 from LTR329ALS01 import LTR329ALS01
+from L76GNSS import L76GNSS
 
-py = Pysense()
-si = SI7006A20(py)
-li = LIS2HH12(py)
-lt = LTR329ALS01(py)
+pysense = Pysense()
+pytrack = Pytrack()
+si = SI7006A20(pysense)
+li = LIS2HH12(pysense)
+lt = LTR329ALS01(pysense)
+gps = L76GNSS(pytrack)
 
-mpPress = MPL3115A2(py,mode=PRESSURE)
+mpPress = MPL3115A2(pysense, mode=PRESSURE)
 
 # Disable heartbeat LED
 pycom.heartbeat(False)
@@ -87,6 +91,11 @@ while True:
     blue = bytearray(struct.pack('H',lt.light()[1]))
     send_data += red + blue
 
+    print('\n\n** GPS Sensor (L76GNSS)')
+    print('Coordinates', gps.getCoordinates())
+    lon = bytearray(struct.pack('Longitude',gps.getCoordinates()[0]))
+    lat = bytearray(struct.pack('Latitude',gps.getCoordinates()[1]))
+    send_data += lon + lat
 
     print('\n\n** Humidity and Temperature Sensor (SI7006A20)')
     print('Humidity', si.humidity())
@@ -94,11 +103,11 @@ while True:
     temperature = bytearray(struct.pack('f',si.temperature()))
     send_data += temperature
 
-    mpPress = MPL3115A2(py,mode=PRESSURE)
+    mpPress = MPL3115A2(pysense, mode=PRESSURE)
     print('\n\n** Barometric Pressure Sensor with Altimeter (MPL3115A2)')
     print('Pressure (hPa)', mpPress.pressure()/100)
 
-    mpAlt = MPL3115A2(py,mode=ALTITUDE)
+    mpAlt = MPL3115A2(pysense ,mode=ALTITUDE)
     print('Altitude', mpAlt.altitude())
     print('Temperature', mpAlt.temperature())
 
