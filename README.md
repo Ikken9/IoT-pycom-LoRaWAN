@@ -1,1 +1,1 @@
-# iot-pycom-pymkr-LoRaWAN
+# IoT-pycom-LoRaWAN
